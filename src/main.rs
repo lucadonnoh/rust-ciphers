@@ -3,6 +3,7 @@ mod cipher;
 use cipher::Cipher;
 use cipher::symmetric::caesar::Caesar;
 use cipher::symmetric::vigenere::Vigenere;
+use cipher::CipherError;
 
 fn main() {
     print!("Enter a message: \n");
@@ -34,30 +35,15 @@ fn main() {
     };
 
     let encrypted = cipher.encrypt(message);
-    println!("Encrypted: {}", encrypted);
-    let decrypted = cipher.decrypt(&encrypted);
-    println!("Decrypted: {}", decrypted);
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_caesar() {
-        let caesar = Caesar::new(3);
-        let plaintext = "The quick brown fox jumps over the lazy dog.";
-        let encrypted = caesar.encrypt(plaintext);
-        let decrypted = caesar.decrypt(&encrypted);
-        assert_eq!(plaintext, decrypted);
+    match encrypted {
+        Ok(ref encrypted) => println!("Encrypted: {}", encrypted),
+        Err(CipherError::InvalidChar(c)) => println!("Invalid character: {}", c),
     }
 
-    #[test]
-    fn test_vigenere() {
-        let vigenere = Vigenere::new("password");
-        let plaintext = "The quick brown fox jumps over the lazy dog.";
-        let encrypted = vigenere.encrypt(plaintext);
-        let decrypted = vigenere.decrypt(&encrypted);
-        assert_eq!(plaintext, decrypted);
+    // TODO: si può migliorare togliendo l'unwrap
+    let decrypted = cipher.decrypt(&encrypted.unwrap());
+    match decrypted {
+        Ok(decrypted) => println!("Decrypted: {}", decrypted),
+        Err(CipherError::InvalidChar(c)) => println!("Invalid character: {}", c),
     }
 }
