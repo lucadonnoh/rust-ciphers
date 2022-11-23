@@ -40,7 +40,7 @@ fn main() {
         Err(CipherError::InvalidChar(c)) => println!("Invalid character: {}", c),
     }
 
-    // TODO: si può migliorare togliendo l'unwrap
+    // TODO: could be better without the unwrap
     let decrypted = cipher.decrypt(&encrypted.unwrap());
     match decrypted {
         Ok(decrypted) => println!("Decrypted: {}", decrypted),
