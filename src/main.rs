@@ -5,7 +5,7 @@ use cipher::symmetric::caesar::Caesar;
 use cipher::symmetric::vigenere::Vigenere;
 use cipher::CipherError;
 
-fn main() {
+fn main() -> Result<(), CipherError> {
     print!("Enter a message: \n");
     let mut message = String::new();
     std::io::stdin().read_line(&mut message).unwrap();
@@ -34,16 +34,10 @@ fn main() {
         _ => panic!("Unknown cipher type"),
     };
 
-    let encrypted = cipher.encrypt(message);
-    match encrypted {
-        Ok(ref encrypted) => println!("Encrypted: {}", encrypted),
-        Err(CipherError::InvalidChar(c)) => println!("Invalid character: {}", c),
-    }
+    let encrypted = cipher.encrypt(message)?;
+    println!("Encrypted: {}", encrypted);
+    let decrypted = cipher.decrypt(&encrypted)?;
+    println!("Decrypted: {}", decrypted);
 
-    // TODO: could be better without the unwrap
-    let decrypted = cipher.decrypt(&encrypted.unwrap());
-    match decrypted {
-        Ok(decrypted) => println!("Decrypted: {}", decrypted),
-        Err(CipherError::InvalidChar(c)) => println!("Invalid character: {}", c),
-    }
+    Ok(())
 }
