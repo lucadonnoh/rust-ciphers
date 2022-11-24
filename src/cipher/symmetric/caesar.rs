@@ -1,3 +1,4 @@
+use crate::ascii::AsciiString;
 use crate::cipher::operation_mode::StreamCipher;
 use crate::cipher::Cipher;
 use crate::cipher::CipherError;
@@ -15,12 +16,12 @@ impl Caesar {
 impl StreamCipher for Caesar {}
 
 impl Cipher for Caesar {
-    fn encrypt(&self, text: &str) -> Result<String, CipherError> {
-        text.chars().map(|c| self.shift_char(c, self.key)).collect()
+    fn encrypt(&self, text: AsciiString) -> Result<AsciiString, CipherError> {
+        text.value.chars().map(|c| self.shift_char(c, self.key)).collect()
     }
 
-    fn decrypt(&self, text: &str) -> Result<String, CipherError> {
-        text.chars().map(|c| self.shift_char(c, 26 - self.key)).collect()
+    fn decrypt(&self, text: AsciiString) -> Result<AsciiString, CipherError> {
+        text.value.chars().map(|c| self.shift_char(c, 26 - self.key)).collect()
     }
 }
 
@@ -31,12 +32,9 @@ mod tests {
     #[test]
     fn caesar() {
         let caesar = Caesar::new(3);
-        assert_eq!(caesar.encrypt("abc").unwrap(), "def");
-        assert_eq!(caesar.decrypt("def").unwrap(), "abc");
-        
-        let plaintext = "The quick brown fox jumps over the lazy dog";
-        let ciphertext = caesar.encrypt(plaintext).unwrap();
-        let decrypted = caesar.decrypt(&ciphertext).unwrap();
-        assert_eq!(plaintext, decrypted);
+        let text = AsciiString::from("Hello, World!".to_string()).unwrap();
+        let encrypted = caesar.encrypt(text).unwrap();
+        let decrypted = caesar.decrypt(encrypted).unwrap();
+        assert_eq!(decrypted.value, "Hello, World!");
     }
 }

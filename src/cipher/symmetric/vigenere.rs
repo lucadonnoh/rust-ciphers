@@ -1,15 +1,17 @@
+use crate::ascii::AsciiString;
+
 use crate::cipher::operation_mode::StreamCipher;
 use crate::cipher::Cipher;
 use crate::cipher::CipherError;
 
 pub struct Vigenere {
-    key: String,
+    key: AsciiString,
 }
 
 impl Vigenere {
-    pub fn new(key: &str) -> Vigenere {
+    pub fn new(key: AsciiString) -> Vigenere {
         Vigenere {
-            key: key.to_string(),
+            key,
         }
     }
 }
@@ -17,9 +19,9 @@ impl Vigenere {
 impl StreamCipher for Vigenere {}
 
 impl Cipher for Vigenere {
-    fn encrypt(&self, text: &str) -> Result<String, CipherError> {
-        let mut key_iter = self.key.chars().cycle();
-        text.chars()
+    fn encrypt(&self, text: AsciiString) -> Result<AsciiString, CipherError> {
+        let mut key_iter = self.key.value.chars().cycle();
+        text.value.chars()
             .map(|c| {
                 let key = key_iter.next().unwrap();
                 let key = key.to_ascii_lowercase() as u8 - b'a';
@@ -27,9 +29,9 @@ impl Cipher for Vigenere {
             }).collect()
     }
 
-    fn decrypt(&self, text: &str) -> Result<String, CipherError> {
-        let mut key_iter = self.key.chars().cycle();
-        text.chars()
+    fn decrypt(&self, text: AsciiString) -> Result<AsciiString, CipherError> {
+        let mut key_iter = self.key.value.chars().cycle();
+        text.value.chars()
             .map(|c| {
                 let key = key_iter.next().unwrap();
                 let key = key.to_ascii_lowercase() as u8 - b'a';
@@ -44,13 +46,11 @@ mod tests {
 
     #[test]
     fn vigenere() {
-        let vigenere = Vigenere::new("abc");
-        assert_eq!(vigenere.encrypt("abc").unwrap(), "ace");
-        assert_eq!(vigenere.decrypt("ace").unwrap(), "abc");
-        
-        let plaintext = "The quick brown fox jumps over the lazy dog";
-        let ciphertext = vigenere.encrypt(plaintext).unwrap();
-        let decrypted = vigenere.decrypt(&ciphertext).unwrap();
-        assert_eq!(plaintext, decrypted);
+        let key = AsciiString::from("key".to_string()).unwrap();
+        let vigenere = Vigenere::new(key);
+        let text = AsciiString::from("Hello, World!".to_string()).unwrap();
+        let encrypted = vigenere.encrypt(text).unwrap();
+        let decrypted = vigenere.decrypt(encrypted).unwrap();
+        assert_eq!(decrypted.value, "Hello, World!");
     }
 }

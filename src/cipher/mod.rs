@@ -1,18 +1,28 @@
 pub mod symmetric;
+use crate::ascii::*;
 
 #[derive(Debug, PartialEq)]
 pub enum CipherError {
     InvalidChar(char)
 }
 
+impl std::fmt::Display for CipherError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            CipherError::InvalidChar(c) => write!(f, "Invalid character: {}", c),
+        }
+    }
+}
+
 pub trait Cipher {
-    fn encrypt(&self, text: &str) -> Result<String, CipherError>;
-    fn decrypt(&self, text: &str) -> Result<String, CipherError>;
+    fn encrypt(&self, text: AsciiString) -> Result<AsciiString, CipherError>;
+    fn decrypt(&self, text: AsciiString) -> Result<AsciiString, CipherError>;
 }
 
 pub mod operation_mode {
     use super::CipherError;
 
+    // TODO: is the ascii check needed? if no, remove CipherError
     pub trait StreamCipher {
         fn shift_char(&self, c: char, key: u8) -> Result<char, CipherError> {
             if c.is_ascii_alphabetic() {
